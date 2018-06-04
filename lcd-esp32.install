@@ -1,0 +1,13 @@
+lib: [
+  "_build/install/default.esp32/lib/lcd/META" {"../../esp32-sysroot/lib/lcd/META"}
+  "_build/install/default.esp32/lib/lcd/opam" {"../../esp32-sysroot/lib/lcd/opam"}
+  "_build/install/default.esp32/lib/lcd/lcd.cmi" {"../../esp32-sysroot/lib/lcd/lcd.cmi"}
+  "_build/install/default.esp32/lib/lcd/lcd.cmx" {"../../esp32-sysroot/lib/lcd/lcd.cmx"}
+  "_build/install/default.esp32/lib/lcd/lcd.cmt" {"../../esp32-sysroot/lib/lcd/lcd.cmt"}
+  "_build/install/default.esp32/lib/lcd/lcd.ml" {"../../esp32-sysroot/lib/lcd/lcd.ml"}
+  "_build/install/default.esp32/lib/lcd/lcd.cma" {"../../esp32-sysroot/lib/lcd/lcd.cma"}
+  "_build/install/default.esp32/lib/lcd/liblcd_stubs.a" {"../../esp32-sysroot/lib/lcd/liblcd_stubs.a"}
+  "_build/install/default.esp32/lib/lcd/lcd.cmxa" {"../../esp32-sysroot/lib/lcd/lcd.cmxa"}
+  "_build/install/default.esp32/lib/lcd/lcd.a" {"../../esp32-sysroot/lib/lcd/lcd.a"}
+  "_build/install/default.esp32/lib/lcd/lcd.dune" {"../../esp32-sysroot/lib/lcd/lcd.dune"}
+]

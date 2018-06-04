@@ -1,0 +1,8 @@
+(jbuild_version 1)
+
+(library
+ ((name        lcd)
+  (public_name lcd)
+  (c_names   (driver))
+  (no_dynlink)
+  (libraries (cstruct))))
