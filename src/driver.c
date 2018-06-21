@@ -324,7 +324,6 @@ static void send_line_finish(spi_device_handle_t spi)
 
 static spi_device_handle_t lcd_spi;
 static int spi_max_transfer_size;
-extern void* dma_block;
 
 #define CONFIG_LCD_OVERCLOCK
 
@@ -410,13 +409,11 @@ CAMLprim value caml_lcd_wait_spi_write() {
  LCD buffer must reside in DMA addressable memory.
  */
 CAMLprim value caml_lcd_alloc_buffer(value ml_size) {
-    free(dma_block);
     printf("alloc_buffer: Largest DMA block available: %d\n", heap_caps_get_largest_free_block(MALLOC_CAP_DMA));
     CAMLparam1(ml_size);
     int size = Int_val(ml_size);
     uint16_t *buffer = heap_caps_malloc(2 * size, MALLOC_CAP_DMA);
 
-    dma_block = heap_caps_malloc( heap_caps_get_largest_free_block(MALLOC_CAP_DMA)*9/10, MALLOC_CAP_DMA);
     if (buffer == NULL) {
         printf("Failed to allocated DMA buffer, of size %d\n", 2*size);
     }
