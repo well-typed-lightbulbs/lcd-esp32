@@ -7,8 +7,8 @@ external alloc_buffer : int -> Cstruct.buffer = "caml_lcd_alloc_buffer"
 let width = 320
 let height = 240
 (* video buffer size in 2-bytes unit *)
-let buffer_size = 1024
-let max_spi_transfer = 2048
+let buffer_size = 512
+let max_spi_transfer = 1024
 
 let video_buffer = Cstruct.of_bigarray (alloc_buffer buffer_size)
 let buffer_color = ref 0x0000
@@ -49,7 +49,25 @@ let transmit_buffer buffer x y width height =
 
 let fill_rect x y width height color =
     fill_internal_buffer (min buffer_size (width*height)) color;
-    transmit_buffer video_buffer x y width height
+    let n_lines_per_transfer = max_spi_transfer / (2 * width) in
+    let rec partial_transmit y target_y len =
+        if y + n_lines_per_transfer > target_y then
+            begin
+                if target_y > y then 
+                    begin
+                        write_buffer (Bigarray.Array1.sub video_buffer.Cstruct.buffer 0 len) x y width (target_y - y);
+                        wait_spi_write ();
+                    end
+                else ();
+            end
+        else
+            begin
+                write_buffer (Bigarray.Array1.sub video_buffer.Cstruct.buffer 0 (2*width*n_lines_per_transfer)) x y width n_lines_per_transfer;
+                wait_spi_write ();
+                partial_transmit (y+n_lines_per_transfer) target_y (len - width*n_lines_per_transfer*2)
+            end
+    in
+    partial_transmit y (y+height) (width*height*2)
 
 let draw_Hline y x_begin x_end color = 
     let width = x_end - x_begin in 

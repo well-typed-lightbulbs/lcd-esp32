@@ -418,7 +418,7 @@ CAMLprim value caml_lcd_alloc_buffer(value ml_size) {
         printf("Failed to allocated DMA buffer, of size %d\n", 2*size);
     }
     assert(buffer);
-    printf("Allocated dma buffer: %x\n", buffer);
+    printf("Allocated dma buffer of size %d\n", size);
     //                                      rgb value                       automatically free
     value ml_buffer = caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT | CAML_BA_MANAGED, 1, buffer, 2 * size);
     CAMLreturn(ml_buffer);
