@@ -8,6 +8,7 @@
 #include "soc/gpio_struct.h"
 #include "driver/gpio.h"
 
+/* #### DRIVER FOR ILI9341 SCREEN OVER SPI ON ESP32 WROVER KIT #### */
 
 #define PIN_NUM_MISO 25
 #define PIN_NUM_MOSI 23
@@ -313,7 +314,7 @@ static void send_line_finish(spi_device_handle_t spi)
     }
 }
 
-
+/* #### CAML BINDINGS #### */
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
@@ -328,7 +329,8 @@ static int spi_max_transfer_size;
 #define CONFIG_LCD_OVERCLOCK
 
 /*
- Initialize SPI driver with LCD
+    Initialize SPI driver with LCD.
+    -> ml_spi_max_transfer_size: Maximum number of bytes transferred in one SPI command.
 */
 CAMLprim value 
 caml_lcd_init(value ml_spi_max_transfer_size) 
@@ -357,13 +359,13 @@ caml_lcd_init(value ml_spi_max_transfer_size)
         .queue_size=7,                          //We want to be able to queue 7 transactions at a time
         .pre_cb=lcd_spi_pre_transfer_callback,  //Specify pre-transfer callback to handle D/C line
     };
-    //Initialize the SPI bus
+    // Initialize the SPI bus
     ret = spi_bus_initialize(HSPI_HOST, &buscfg, 1);
     ESP_ERROR_CHECK(ret);
-    //Attach the LCD to the SPI bus
+    // Attach the LCD to the SPI bus
     ret = spi_bus_add_device(HSPI_HOST, &devcfg, &lcd_spi);
     ESP_ERROR_CHECK(ret);
-    //Initialize the LCD
+    // Initialize the LCD
     lcd_init(lcd_spi);
 
     CAMLreturn(Val_unit);
@@ -371,8 +373,11 @@ caml_lcd_init(value ml_spi_max_transfer_size)
 
 
 /*
- Output DMA addressable buffer buffer to spi lcd.
- */
+    Output DMA addressable buffer buffer to spi lcd.
+    -> ml_buffer: Cstruct.t buffer allocated by `caml_lcd_alloc_buffer`
+    -> ml_x, ml_y: Coordinates where the buffer will be printed on.
+    -> ml_width, ml_height: Dimensions of the buffer. 
+*/
 CAMLprim value 
 caml_lcd_write_buffer(value ml_buffer, value ml_x, value ml_y, value ml_width, value ml_height)
 {
@@ -390,15 +395,14 @@ caml_lcd_write_buffer(value ml_buffer, value ml_x, value ml_y, value ml_width, v
         if (!esp_ptr_dma_capable(buffer)){
             printf("Buffer is not DMA capable: %x\n", buffer);
         }
-        assert(esp_ptr_dma_capable(buffer));
         send_box(lcd_spi, x, y, width, height, buffer);
     }
     CAMLreturn(Val_unit);
 }
 
 /*
- Returns only when the lcd spi buffer can be written to.
- */
+    Blocks and returns only when the lcd spi buffer can be written to.
+*/
 CAMLprim value caml_lcd_wait_spi_write() {
     CAMLparam0();
     send_line_finish(lcd_spi);
@@ -406,8 +410,9 @@ CAMLprim value caml_lcd_wait_spi_write() {
 }
 
 /*
- LCD buffer must reside in DMA addressable memory.
- */
+    Allocate a buffer suitable for LCD transmission. (the buffer must reside in DMA addressable memory)
+    -> ml_size: size of the buffer, in pixels.
+*/
 CAMLprim value caml_lcd_alloc_buffer(value ml_size) {
     printf("alloc_buffer: Largest DMA block available: %d\n", heap_caps_get_largest_free_block(MALLOC_CAP_DMA));
     CAMLparam1(ml_size);
